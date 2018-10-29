@@ -6,6 +6,11 @@ import http.server
 import requests
 import os
 from urllib.parse import unquote, parse_qs
+import threading
+from socketserver import ThreadingMixIn
+
+class ThreadHTTPServer(ThreadingMixIn, http.server.HTTPServer):
+    "This is an HTTPServer that supports thread-based concurrency."
 
 memory = {}
 
@@ -27,7 +32,6 @@ form = '''<!DOCTYPE html>
 {}
 </pre>
 '''
-
 
 def CheckURI(uri, timeout=5):
     '''Check whether this URI is reachable, i.e. does it return a 200 OK?
@@ -108,6 +112,6 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8000))   # Use PORT if it's there.
     server_address = ('', port)
     # Create Http Daemon object.
-    httpd = http.server.HTTPServer(server_address, Shortener)
+    httpd = ThreadHTTPServer(server_address, Shortener)
      # Http Daemon serves responses to incoming requests
     httpd.serve_forever()
